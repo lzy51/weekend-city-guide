@@ -217,6 +217,112 @@ function renderSuccess(id){
   go('success');
   confetti();
 }
-/*__MORE4__*/
+
+/* ---------- 分享面板（微信拼单式邀请） ---------- */
+let SHARE_TEAM_ID = null;
+function openShare(id){
+  SHARE_TEAM_ID = id;
+  $('#invite-card').hidden = true;
+  $('#sheet-mask').hidden = false;
+  $('#share-sheet').hidden = false;
+}
+function closeShare(){
+  $('#sheet-mask').hidden = true;
+  $('#share-sheet').hidden = true;
+}
+$$('.share-grid button').forEach(b=>b.addEventListener('click', ()=>{
+  const t = teamById(SHARE_TEAM_ID); if(!t) return;
+  const a = actById(t.actId);
+  const act = b.dataset.share;
+  if(act==='card'){
+    const ic = $('#invite-card');
+    ic.hidden = false;
+    ic.innerHTML = `<div class="ic-in"><div class="ic-cover">${a.e}</div>
+      <div style="flex:1;min-width:0"><p class="ic-t">【还差 ${t.need-t.members.length} 人成团】${esc(a.t)}</p>
+      <p class="ic-d">${esc(t.meetTime)} · ${esc(t.meetSpot)} · 人均约 ¥${actTotal(a)}</p></div></div>
+      <p style="font-size:10.5px;color:#9a9a9a;margin-top:6px;text-align:center">↑ 微信聊天卡片预览（Demo 模拟）</p>`;
+    return;
+  }
+  if(act==='link'){
+    const url = location.href.split('#')[0] + '#join=' + t.id;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(()=>toast('🔗 邀请链接已复制，发给好友即可加入'));
+    }else{
+      window.prompt('复制下面的邀请链接发给好友：', url);
+    }
+    return;
+  }
+  toast(act==='wx' ? '💬 已（模拟）转发给微信好友，等 TA 加入吧' : '🟢 已（模拟）分享到朋友圈');
+}));
+
+/* ---------- 撒花动画 ---------- */
+function confetti(){
+  const cv = $('#confetti'), ctx = cv.getContext('2d');
+  cv.width = cv.offsetWidth; cv.height = cv.offsetHeight;
+  const colors = ['#ff6b35','#ffb98f','#07c160','#ffd166','#4d96ff'];
+  const ps = Array.from({length:90}, ()=>({
+    x:Math.random()*cv.width, y:-20-Math.random()*cv.height*.6,
+    r:4+Math.random()*5, c:colors[Math.floor(Math.random()*colors.length)],
+    vy:2+Math.random()*3.5, vx:-1.5+Math.random()*3,
+    rot:Math.random()*Math.PI, vr:-.2+Math.random()*.4
+  }));
+  const t0 = Date.now();
+  (function frame(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ps.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.fillStyle=p.c; ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6); ctx.restore();
+    });
+    if(Date.now()-t0 < 2600) requestAnimationFrame(frame);
+    else ctx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+
+/* ---------- 我的行程列表 ---------- */
+function renderTrips(){
+  const ts = getTeams();
+  $('#trip-list').innerHTML = ts.length ? ts.map(t=>{
+    const a = actById(t.actId);
+    const stateTxt = {recruiting:'🔥 招募中', success:'✅ 已成团', expired:'⌛ 已过期', done:'🏁 已完成'}[t.status];
+    return `<button class="act-card" onclick="renderTeam('${t.id}')">
+      <div class="act-emoji">${a.e}</div>
+      <div class="act-info">
+        <h3>${esc(a.t)}</h3>
+        <p class="act-sub">⏰ ${esc(t.meetTime)} · 📍 ${esc(t.meetSpot)}<br>👤 ${esc(t.creator.name)} 发起 · ${t.members.length}/${t.need} 人已加入</p>
+        <div class="trip-state"><span class="tag hot">${stateTxt}</span>
+          <span>${t.status==='recruiting' ? `还差 ${t.need-t.members.length} 人成团` : (t.status==='success' ? '人已齐，记得打卡！' : '点击查看详情')}</span></div>
+      </div>
+    </button>`;
+  }).join('') : `<p class="empty">还没有组队 🫥<br>去活动库挑一个喜欢的，<br>像「拼单」一样凑齐你的周末小队！<br><br>
+    <button class="btn main sm" onclick="go('explore');renderExplore()">🔍 去逛活动库</button></p>`;
+}
+
+/* ---------- 跨标签页实时同步（好友加入 → 本页刷新） ---------- */
+let CUR_TEAM = null;
+const __renderTeam = renderTeam;
+renderTeam = function(id){ CUR_TEAM = id; __renderTeam(id); };
+window.addEventListener('storage', e=>{
+  if(e.key !== TEAM_KEY) return;
+  const t = teamById(CUR_TEAM);
+  if(!t) return;
+  if(t.status==='success' && CUR_VIEW!=='success'){
+    earnBadge('crew'); renderSuccess(t.id);
+  }else if(CUR_VIEW==='team'){
+    renderTeam(t.id);
+  }else if(CUR_VIEW==='trips'){
+    renderTrips();
+  }
+});
+
+/* ---------- 好友从邀请链接落地 ---------- */
+(function initJoinLink(){
+  const m = location.hash.match(/join=(T\w+)/);
+  if(m && teamById(m[1])){
+    renderTeam(m[1]);
+    setTimeout(()=>toast('👋 你收到了好友的组队邀请！'), 400);
+  }
+})();
+
 
 
