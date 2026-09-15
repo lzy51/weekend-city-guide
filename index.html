@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>周末城市探索指南 · Weekender</title>
+<link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<div class="stage">
+ <div class="phone">
+  <div class="notch"></div>
+  <div class="statusbar"><span>9:41</span><span class="sb-r">🛜 📶 🔋92</span></div>
+  <main id="views">
+
+   <!-- ① 推荐首页 -->
+   <section class="view on" id="view-home">
+     <header class="home-head">
+       <div><p class="hello">Hi，探索者 👋</p><h1>这周末去哪儿？</h1></div>
+       <div class="weather">
+         <div class="w-item"><b>☀️ 周六 26°</b><span>适合户外</span></div>
+         <div class="w-item rain"><b>🌧️ 周日 19°</b><span>已备室内 Plan B</span></div>
+       </div>
+     </header>
+     <div class="card ask">
+       <p class="ask-t">先花 10 秒，说说你的周末 👇</p>
+       <div class="ask-row"><label>💰 预算</label><div class="chips" id="chip-budget"></div></div>
+       <div class="ask-row"><label>⏱ 时长</label><div class="chips" id="chip-dur"></div></div>
+       <div class="ask-row"><label>👥 同行</label><div class="chips" id="chip-mates"></div></div>
+       <div class="ask-row"><label>🏷 偏好（可多选）</label><div class="chips" id="chip-pref"></div></div>
+       <button class="btn main block" id="btn-plan">✨ 生成本周方案</button>
+     </div>
+     <div id="plan-list"></div>
+   </section>
+
+   <!-- ② 活动库 -->
+   <section class="view" id="view-explore">
+     <h2 class="pg-t">🔍 活动库<span class="sub" id="explore-sub"></span></h2>
+     <div class="chips cat" id="chip-cat"></div>
+     <div class="sort-bar">
+       <span>排序：</span>
+       <button class="sort-btn on" data-sort="hot">最热</button>
+       <button class="sort-btn" data-sort="price">总花费↑</button>
+       <button class="sort-btn" data-sort="end">即将结束</button>
+     </div>
+     <div id="act-list"></div>
+   </section>
+
+   <!-- ③ 我的行程 -->
+   <section class="view" id="view-trips">
+     <h2 class="pg-t">🧭 我的行程</h2>
+     <div id="trip-list"></div>
+   </section>
+
+   <!-- ④ 我的 -->
+   <section class="view" id="view-me">
+     <h2 class="pg-t">🏅 我的探索</h2>
+     <div id="me-stats" class="stats"></div>
+     <div class="card"><p class="c-t">🗺️ 城市点亮</p><div class="map-grid" id="map-grid"></div></div>
+     <div class="card"><p class="c-t">🎖️ 徽章墙</p><div class="badges" id="badge-wall"></div></div>
+     <div class="card"><p class="c-t">📍 我的足迹</p><div id="checkin-list"></div></div>
+   </section>
+
+   <!-- 详情 / 组队 / 成团 / 攻略：由 JS 渲染 -->
+   <section class="view" id="view-detail"></section>
+   <section class="view" id="view-team"></section>
+   <section class="view" id="view-success"></section>
+   <section class="view" id="view-guide"></section>
+  </main>
+
+  <nav class="tabbar" id="tabbar">
+    <button data-view="home" class="on">🏠<span>推荐</span></button>
+    <button data-view="explore">🔍<span>活动库</span></button>
+    <button data-view="trips">🧭<span>行程</span></button>
+    <button data-view="me">🏅<span>我的</span></button>
+  </nav>
+
+  <!-- 弹层 -->
+  <div class="sheet-mask" id="sheet-mask" hidden></div>
+  <div class="sheet" id="share-sheet" hidden>
+    <p class="sheet-t">邀请好友加入组队</p>
+    <div class="share-grid">
+      <button data-share="wx">💬<span>微信好友</span></button>
+      <button data-share="pyq">🟢<span>朋友圈</span></button>
+      <button data-share="link">🔗<span>复制链接</span></button>
+      <button data-share="card">🃏<span>预览邀请卡</span></button>
+    </div>
+    <div class="invite-card" id="invite-card" hidden></div>
+    <button class="btn ghost block" id="sheet-close">取消</button>
+  </div>
+  <div class="modal-mask" id="modal-mask" hidden></div>
+  <div class="modal" id="modal" hidden></div>
+  <div class="toast" id="toast" hidden></div>
+  <canvas id="confetti"></canvas>
+ </div>
+ <p class="stage-tip">💡 双击打开即可体验 · 再开一个窗口＝一位新好友，可实时体验“邀请→加入→成团”</p>
+</div>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script src="js/team.js"></script>
+</body>
+</html>
